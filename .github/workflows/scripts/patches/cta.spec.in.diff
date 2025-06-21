@@ -1,0 +1,45 @@
+diff -urN CTA-v5.11.10.0-1.orig/cta.spec.in CTA-v5.11.10.0-1/cta.spec.in
+--- CTA-v5.11.10.0-1.orig/cta.spec.in	2025-06-10 12:09:37.000000000 +0200
++++ CTA-v5.11.10.0-1/cta.spec.in	2025-06-23 07:30:46.240662350 +0200
+@@ -56,11 +56,19 @@
+ BuildRoot: %{_builddir}/%{name}-%{version}-root
+ BuildRequires: cmake3 >= 3.17 redhat-rpm-config
+ 
++%if "%{occiSupport}" == "1"
+ %define oracleVersionMin 23.0
+ %define oracleVersionMax 24.0
++%define oracle-instantclient-devel >= %{oracleVersionMin} oracle-instantclient-devel < %{oracleVersionMax}
++%endif
++
++%if "%{usingObjectstore}" == "1"
++BuildRequires: librados-devel
++BuildRequires: libradosstriper-devel
++%endif
++
+ %define xrootdVersion 1:5.7.1-1.el9
+-%define radosVersion 2:17.2.8
+-%define requirementsOS protobuf-compiler >= 3.3.1 protobuf-devel >= 3.3.1 oracle-instantclient-devel >= %{oracleVersionMin} oracle-instantclient-devel < %{oracleVersionMax}
++%define requirementsOS protobuf-compiler >= 3.3.1 protobuf-devel >= 3.3.1
+ %define requiredProtobuf protobuf
+ BuildRequires: %{requirementsOS}
+ BuildRequires: grpc, grpc-devel, grpc-plugins
+@@ -68,7 +76,6 @@
+ BuildRequires: xrootd-devel         >= %{xrootdVersion}
+ BuildRequires: xrootd-server-devel  >= %{xrootdVersion}
+ BuildRequires: xrootd-private-devel >= %{xrootdVersion}
+-BuildRequires: librados-devel = %{radosVersion}, libradosstriper-devel = %{radosVersion},
+ BuildRequires: gtest-devel >= 1.11.0
+ BuildRequires: sqlite-devel >= 3.6
+ BuildRequires: libcap-devel >= 2.16
+@@ -326,9 +333,10 @@
+ %package -n cta-lib
+ Summary: CERN Tape Archive libraries
+ Group: Application/CTA
+-Requires: librados2 = %{radosVersion}
+ %if "%{usingObjectstore}" == "0"
+ Requires: postgresql-libs
++%else
++Requires: librados2
+ %endif
+ Requires: xrootd-client-libs >= %{xrootdVersion}
+ # Explicity require protobuf to avoid clash with eos-protobuf
