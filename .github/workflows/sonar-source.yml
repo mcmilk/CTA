@@ -8,8 +8,6 @@ on:
     # Every day at 3 am
     - cron: '0 3 * * *'
   push:
-    branches:
-      - main
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
